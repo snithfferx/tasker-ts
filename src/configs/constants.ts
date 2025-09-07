@@ -1,0 +1,13 @@
+export const APP_AUTHOR = import.meta.env.APP_AUTHOR;
+export const APP_FULL_NAME = import.meta.env.APP_FULL_NAME;
+export const APP_NAME = import.meta.env.APP_NAME;
+export const APP_VERSION = import.meta.env.APP_VERSION;
+export const APP_DESCRIPTION = import.meta.env.APP_DESCRIPTION;
+export const APP_URL = import.meta.env.APP_URL;
+export const API_KEY = import.meta.env.FIREBASE_API_KEY;
+export const AUTH_DOMAIN = import.meta.env.FIREBASE_AUTH_DOMAIN;
+export const PROJECT_ID = import.meta.env.FIREBASE_PROJECT_ID;
+export const STORAGE_BUCKET = import.meta.env.FIREBASE_STORAGE_BUCKET;
+export const MESSAGING_SENDER_ID = import.meta.env.FIREBASE_MESSAGING_SENDER_ID;
+export const APP_ID = import.meta.env.FIREBASE_APP_ID;
+export const MEASUREMENT_ID = import.meta.env.FIREBASE_MEASUREMENT_ID;
