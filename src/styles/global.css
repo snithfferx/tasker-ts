@@ -1,1 +1,4 @@
 @import "tailwindcss";
+
+/* Import responsive design utilities */
+@import './responsive.css';
