@@ -7,7 +7,50 @@
   "exclude": [
     "dist"
   ],
-  "compilerOptions": {
+  "compilerOptions": {"baseUrl": ".",
+    "paths": {
+    "@Components/*": [
+        "src/components/*"
+      ],
+      "@Layouts/*": [
+        "src/layouts/*"
+      ],
+      "@Pages/*": [
+        "src/pages/*"
+      ],
+      "@Styles/*": [
+        "src/styles/*"
+      ],
+      "@Utils/*": [
+        "src/utils/*"
+      ],
+      "@Assets/*": [
+        "src/assets/*"
+      ],"@Hooks/*": [
+        "src/hooks/*"
+      ],
+      "@Types/*": [
+        "src/types/*"
+      ],
+      "@Content/*": [
+        "src/content/*"
+      ],
+      "@DB/*": [
+        "db/*"
+      ],
+      "@Configs/*": [
+        "src/configs/*"
+      ],
+	  "@Contexts/*": [
+        "src/contexts/*"
+      ],
+	  "@Services/*": [
+        "src/services/*"
+      ],
+	  "@Stores/*": [
+        "src/stores/*"
+      ],
+    },
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   }
