@@ -2,9 +2,8 @@ import type { APIRoute } from 'astro';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '@Services/firebase';
 
-export const POST: APIRoute = async ({ request, redirect }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
   try {
-    // Parse form data
     const formData = await request.formData();
     const email = formData.get('email')?.toString();
     const password = formData.get('password')?.toString();
@@ -13,69 +12,59 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     if (!email || !password || !name) {
       return new Response(JSON.stringify({ error: 'Name, email, and password are required' }), {
         status: 400,
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    // Attempt to create user with Firebase
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Update user profile with display name
-    await updateProfile(user, {
-      displayName: name
-    });
+    await updateProfile(user, { displayName: name });
 
-    // Get ID token for session management
     const idToken = await user.getIdToken();
 
-    // Create response with redirect
-    const response = redirect('/dashboard', 302);
-    
-    // Set secure HTTP-only cookie with the token
-    response.headers.set('Set-Cookie', 
-      `auth-token=${idToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=3600`
-    );
+    cookies.set('auth-token', idToken, {
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 3600,
+    });
 
-    return response;
+    return new Response(JSON.stringify({ success: true }), {
+      status: 201, // 201 Created
+      headers: { 'Content-Type': 'application/json' },
+    });
 
   } catch (error: any) {
     console.error('Registration error:', error);
-    
     let errorMessage = 'Registration failed. Please try again.';
-    
-    // Handle specific Firebase errors
+    let status = 500;
+
     if (error.code) {
       switch (error.code) {
         case 'auth/email-already-in-use':
           errorMessage = 'An account with this email already exists.';
+          status = 409; // Conflict
           break;
         case 'auth/weak-password':
           errorMessage = 'Password is too weak. Please use at least 6 characters.';
+          status = 400;
           break;
         case 'auth/invalid-email':
           errorMessage = 'Invalid email address.';
+          status = 400;
           break;
         case 'auth/operation-not-allowed':
           errorMessage = 'Email registration is not enabled.';
+          status = 500;
           break;
       }
     }
 
-    // Return to register page with error
-    return redirect(`/register?error=${encodeURIComponent(errorMessage)}`, 302);
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
-};
-
-// Handle unsupported methods
-export const GET: APIRoute = async () => {
-  return new Response(JSON.stringify({ error: 'Method not allowed. Use POST.' }), {
-    status: 405,
-    headers: {
-      'Content-Type': 'application/json',
-      'Allow': 'POST'
-    }
-  });
 };

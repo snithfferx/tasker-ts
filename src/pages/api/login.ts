@@ -2,9 +2,8 @@ import type { APIRoute } from 'astro';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@Services/firebase';
 
-export const POST: APIRoute = async ({ request, redirect }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
   try {
-    // Parse form data
     const formData = await request.formData();
     const email = formData.get('email')?.toString();
     const password = formData.get('password')?.toString();
@@ -12,67 +11,62 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     if (!email || !password) {
       return new Response(JSON.stringify({ error: 'Email and password are required' }), {
         status: 400,
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    // Attempt to sign in with Firebase
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    // console.log(userCredential);
     const user = userCredential.user;
-
-    // Get ID token for session management
     const idToken = await user.getIdToken();
 
-    // Create response with redirect
-    const response = redirect('/dashboard', 302);
-    
-    // Set secure HTTP-only cookie with the token
-    response.headers.set('Set-Cookie', 
-      `auth-token=${idToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=3600`
-    );
+    // Use secure cookies only in production/https. In local dev over http, disable secure so the cookie is set.
+    const url = new URL(request.url);
+    const isSecureContext = url.protocol === 'https:';
 
-    return response;
+    cookies.set('auth-token', idToken, {
+      path: '/',
+      httpOnly: true,
+      secure: isSecureContext,
+      sameSite: 'lax',
+      maxAge: 3600,
+    });
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
 
   } catch (error: any) {
     console.error('Login error:', error);
-    
     let errorMessage = 'Login failed. Please try again.';
-    
-    // Handle specific Firebase errors
+    let status = 500;
+
     if (error.code) {
       switch (error.code) {
         case 'auth/user-not-found':
-          errorMessage = 'No account found with this email address.';
-          break;
         case 'auth/wrong-password':
-          errorMessage = 'Incorrect password.';
+          errorMessage = 'Invalid credentials.';
+          status = 401;
           break;
         case 'auth/invalid-email':
           errorMessage = 'Invalid email address.';
+          status = 400;
           break;
         case 'auth/user-disabled':
           errorMessage = 'This account has been disabled.';
+          status = 403;
           break;
         case 'auth/too-many-requests':
           errorMessage = 'Too many failed attempts. Please try again later.';
+          status = 429;
           break;
       }
     }
 
-    // Return to login page with error
-    return redirect(`/login?error=${encodeURIComponent(errorMessage)}`, 302);
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
-};
-
-// Handle unsupported methods
-export const GET: APIRoute = async () => {
-  return new Response(JSON.stringify({ error: 'Method not allowed. Use POST.' }), {
-    status: 405,
-    headers: {
-      'Content-Type': 'application/json',
-      'Allow': 'POST'
-    }
-  });
 };
