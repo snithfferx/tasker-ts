@@ -25,17 +25,24 @@ const isActivePage = (href: string) => {
 
 <BaseLayout title={`${title} | Tasker`}>
   <AuthGuard client:load>
-    <div class="min-h-screen bg-gray-100">
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
     <!-- Navigation Header -->
-    <header class="bg-white shadow">
+    <header class="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700 transition-colors duration-300">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-6">
           <!-- Page Title -->
           <div class="flex items-center space-x-4">
-            <h1 class="text-3xl font-bold text-gray-900">{title}</h1>
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+              </div>
+              <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{title}</h1>
+            </div>
           </div>
           
-          <!-- Real-time Sync Status & User Profile -->
+          <!-- Theme Toggle, Real-time Sync Status & User Profile -->
           <div class="flex items-center space-x-4">
             <RealTimeSync client:load className="hidden sm:flex" />
             <UserProfile client:load />
@@ -43,17 +50,17 @@ const isActivePage = (href: string) => {
         </div>
         
         <!-- Navigation Tabs -->
-        <div class="border-t border-gray-200">
+        <div class="border-t border-gray-200 dark:border-gray-700">
           <nav class="-mb-px flex space-x-8" aria-label="Tabs">
             {navItems.map((item) => {
               const isActive = isActivePage(item.href);
               return (
                 <a
                   href={item.href}
-                  class={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  class={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-all duration-200 ${
                     isActive
-                      ? 'border-indigo-500 text-indigo-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
                   <div class="flex items-center space-x-2">
