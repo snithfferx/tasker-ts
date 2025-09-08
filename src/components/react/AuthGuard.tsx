@@ -16,9 +16,14 @@ export default function AuthGuard({
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [redirectPlanned, setRedirectPlanned] = useState(false);
 
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
+
+    // Helper: check if server cookie exists
+    const hasAuthCookie = () =>
+      typeof document !== 'undefined' && document.cookie.includes('auth-token=');
 
     // Initialize auth state
     const initializeAuth = async () => {
@@ -31,10 +36,21 @@ export default function AuthGuard({
         unsubscribe = onAuthChange((user) => {
           setUser(user);
           setIsLoading(false);
-          
-          // Redirect to login if not authenticated
+
+          // If unauthenticated, only redirect when there's no server cookie.
+          // If cookie exists, give the client a moment to establish Firebase auth.
           if (!user && redirectTo) {
-            window.location.href = redirectTo;
+            if (!hasAuthCookie()) {
+              window.location.href = redirectTo;
+            } else if (!redirectPlanned) {
+              setRedirectPlanned(true);
+              // Fallback safety: if after a short delay auth is still not established, redirect.
+              setTimeout(() => {
+                if (!hasAuthCookie()) {
+                  window.location.href = redirectTo;
+                }
+              }, 3000);
+            }
           }
         });
       } catch (error) {
@@ -51,7 +67,7 @@ export default function AuthGuard({
         unsubscribe();
       }
     };
-  }, [redirectTo]);
+  }, [redirectTo, redirectPlanned]);
 
   // Show loading state while initializing
   if (isLoading || !isInitialized) {
