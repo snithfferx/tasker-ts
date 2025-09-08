@@ -34,7 +34,7 @@ export default function UserProfile() {
   if (isLoading || !user) {
     return (
       <div className="flex items-center space-x-2">
-        <div className="animate-pulse bg-gray-200 rounded-full w-8 h-8"></div>
+        <div className="loading-skeleton rounded-full w-8 h-8"></div>
       </div>
     );
   }
@@ -53,11 +53,11 @@ export default function UserProfile() {
       {/* User Avatar/Button */}
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="flex items-center space-x-3 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        className="flex items-center space-x-3 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-all duration-200"
         aria-expanded={showDropdown}
         aria-haspopup="true"
       >
-        <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white font-medium">
+        <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-medium shadow-lg">
           {user.photoURL ? (
             <img
               src={user.photoURL}
@@ -70,8 +70,8 @@ export default function UserProfile() {
         </div>
         <div className="hidden md:block">
           <div className="text-left">
-            <p className="text-sm font-medium text-gray-900">{displayName}</p>
-            <p className="text-xs text-gray-500">{email}</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-white">{displayName}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{email}</p>
           </div>
         </div>
         <svg
@@ -88,12 +88,12 @@ export default function UserProfile() {
 
       {/* Dropdown Menu */}
       {showDropdown && (
-        <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+        <div className="absolute right-0 mt-2 w-56 rounded-lg shadow-xl bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 dark:ring-gray-600 focus:outline-none z-50 animate-scale-in">
           <div className="py-1">
             {/* User Info */}
-            <div className="px-4 py-3 border-b border-gray-100">
-              <p className="text-sm font-medium text-gray-900">{displayName}</p>
-              <p className="text-xs text-gray-500">{email}</p>
+            <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{displayName}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{email}</p>
               {user.emailVerified && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 mt-1">
                   <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,7 +108,7 @@ export default function UserProfile() {
             <div className="py-1">
               <a
                 href="/profile"
-                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors rounded-lg mx-2"
               >
                 <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -118,7 +118,7 @@ export default function UserProfile() {
               
               <a
                 href="/dashboard"
-                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors rounded-lg mx-2"
               >
                 <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -126,12 +126,12 @@ export default function UserProfile() {
                 Dashboard
               </a>
 
-              <div className="border-t border-gray-100 my-1"></div>
+              <div className="border-t border-gray-100 dark:border-gray-700 my-1"></div>
 
               <button
                 onClick={handleSignOut}
                 disabled={isSigningOut}
-                className="flex items-center w-full px-4 py-2 text-sm text-red-700 hover:bg-red-50 hover:text-red-900 disabled:opacity-50"
+                className="flex items-center w-full px-4 py-2 text-sm text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-900 dark:hover:text-red-300 disabled:opacity-50 transition-colors rounded-lg mx-2"
               >
                 {isSigningOut ? (
                   <>
