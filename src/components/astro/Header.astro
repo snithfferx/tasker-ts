@@ -2,6 +2,7 @@
 import { APP_NAME } from '@Configs/constants';
 import ThemeToggle from '@Components/react/ThemeToggle';
 import UserProfile from '@Components/react/UserProfile';
+import { verifyAuthentication } from '@Utils/auth-server';
 
 interface Props {
   currentPage?: string;
@@ -9,9 +10,19 @@ interface Props {
 
 const { currentPage = '' } = Astro.props;
 
-// Check for authentication by reading the auth cookie
-const authToken = Astro.cookies.get('auth-token');
-const isAuthenticated = authToken ? true : false;
+// Properly verify authentication with token validation and expiration check
+const authResult = await verifyAuthentication(Astro.cookies);
+const isAuthenticated = authResult.isAuthenticated;
+const userId = authResult.userId;
+
+// Log authentication status for debugging (remove in production)
+if (import.meta.env.DEV) {
+  console.log('Header auth check:', { 
+    isAuthenticated, 
+    userId: userId || 'none',
+    error: authResult.error || 'none'
+  });
+}
 
 const navItems = [
   { name: 'Features', href: '#features' },
@@ -57,8 +68,6 @@ const isActive = (path: string) => currentPage === path;
             >
               Dashboard
             </a>
-            
-            
             
             <UserProfile client:only='react' />
         ) : (

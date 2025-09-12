@@ -3,6 +3,17 @@ import DashboardLayout from '@Layouts/DashboardLayout.astro';
 import Timer from '@Components/react/Timer';
 import TaskForm from '@Components/react/TaskForm';
 import TaskList from '@Components/react/TaskList';
+import { verifyAuthentication, createAuthRedirect } from '@Utils/auth-server';
+
+// Server-side authentication check
+const authResult = await verifyAuthentication(Astro.cookies);
+if (!authResult.isAuthenticated) {
+  // Log the reason for debugging (remove in production)
+  if (import.meta.env.DEV) {
+    console.log('Tasks page access denied:', authResult.error);
+  }
+  return createAuthRedirect('/auth/login');
+}
 ---
 
 <DashboardLayout title="Tasks">
