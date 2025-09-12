@@ -48,7 +48,7 @@ export const TimeConsumingTasksChart: React.FC<TimeConsumingTasksChartProps> = (
           ]}
           xAxisProps={{
             type: 'number',
-            tickFormatter: (value) => `${value}h`,
+            tickFormatter: (value: number) => `${value}h`,
             domain: [0, 'dataMax']
           }}
           yAxisProps={{

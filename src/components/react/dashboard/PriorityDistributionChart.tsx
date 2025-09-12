@@ -11,9 +11,9 @@ interface PriorityDistributionChartProps {
   loading?: boolean;
 }
 
-export const PriorityDistributionChart: React.FC<PriorityDistributionChartProps> = ({ 
-  data, 
-  loading = false 
+export const PriorityDistributionChart: React.FC<PriorityDistributionChartProps> = ({
+  data,
+  loading = false
 }) => {
   if (loading) {
     return (
@@ -37,7 +37,7 @@ export const PriorityDistributionChart: React.FC<PriorityDistributionChartProps>
     <ChartContainer title="Priority Distribution">
       <div className="flex flex-col md:flex-row gap-6">
         <div className="w-full md:w-1/2 h-48">
-          <PieChartComponent 
+          <PieChartComponent
             data={data}
             innerRadius="60%"
             outerRadius="100%"
@@ -48,8 +48,8 @@ export const PriorityDistributionChart: React.FC<PriorityDistributionChartProps>
           {data.map((item, index) => (
             <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700">
               <div className="flex items-center">
-                <div 
-                  className="w-3 h-3 rounded-full mr-3" 
+                <div
+                  className="w-3 h-3 rounded-full mr-3"
                   style={{ backgroundColor: item.color }}
                 />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">

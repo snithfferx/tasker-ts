@@ -30,7 +30,7 @@ export const TimeSpentChart: React.FC<TimeSpentChartProps> = ({ data, loading = 
         ]}
         tooltipFormatter={(value) => [`${value} hours`, 'Hours']}
         yAxisProps={{
-          tickFormatter: (value) => `${value}h`
+          tickFormatter: (value: number) => `${value}h`
         }}
       />
     </ChartContainer>

@@ -3,6 +3,14 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { onTasksSnapshot, onCategoriesSnapshot, onTimeEntriesSnapshot } from '@Services/firestore';
 import { getCurrentUserId } from '@Services/auth';
 import { format, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
+
+const EmptyState = ({ icon, title, message }: { icon: string, title: string, message: string }) => (
+  <div className="flex flex-col items-center justify-center py-12 text-center">
+    <div className="text-4xl mb-3">{icon}</div>
+    <p className="text-gray-500 dark:text-gray-400 font-medium">{title}</p>
+    <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">{message}</p>
+  </div>
+);
 import type { Categories } from '@Types/category';
 import type { Task } from '@Types/task';
 import type { TimeEntry } from '@Types/timer';
@@ -46,23 +54,30 @@ export default function DashboardAnalytics() {
     };
 
     const unsubTasks = onTasksSnapshot(uid, (items) => {
-      setTasks(items);
+      setTasks(items || []);
+      checkComplete();
+    }, (error) => {
+      console.error('Error loading tasks:', error);
+      setTasks([]);
       checkComplete();
     });
 
     // Real-time time entries subscription
     const unsubTimeEntries = onTimeEntriesSnapshot(uid, (items) => {
-      setTimeEntries(items);
+      setTimeEntries(items || []);
+      checkComplete();
+    }, (error) => {
+      console.error('Error loading time entries:', error);
+      setTimeEntries([]);
       checkComplete();
     });
 
-	  const unsubCategories = onCategoriesSnapshot(uid, (items) => {
-		// check if categories exist, if not, return error
-		if (!items) {
-			console.error('No categories found for user:', uid);
-			return;
-		}
-      setCategories(items);
+    const unsubCategories = onCategoriesSnapshot(uid, (items) => {
+      setCategories(items || []);
+      checkComplete();
+    }, (error) => {
+      console.error('Error loading categories:', error);
+      setCategories([]);
       checkComplete();
     });
 
@@ -92,14 +107,22 @@ export default function DashboardAnalytics() {
         return taskDate >= monthStart && taskDate <= monthEnd;
       });
 
-      const total = monthTasks.length;
+      const completed = monthTasks.filter(task => task.status === 'completed').length;
+      const pending = monthTasks.length - completed;
 
       months.push({
         month: format(date, 'MMM yyyy'),
-        total
+        completed,
+        pending,
+        total: monthTasks.length
       });
     }
-    return months;
+    return months.length > 0 ? months : Array(6).fill(0).map((_, i) => ({
+      month: format(subMonths(new Date(), 5 - i), 'MMM yyyy'),
+      completed: 0,
+      pending: 0,
+      total: 0
+    }));
   };
 
   const getTimeSpentByMonth = () => {
@@ -168,19 +191,27 @@ export default function DashboardAnalytics() {
     const weekEnd = endOfWeek(new Date());
     const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
-    return days.map(day => {
+    const result = days.map(day => {
       const dayTasks = tasks.filter(task => {
         const taskDate = new Date(task.createdAt);
         return format(taskDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd');
       });
 
+      const completed = dayTasks.filter(task => task.status === 'completed').length;
       const total = dayTasks.length;
 
       return {
         day: format(day, 'EEE'),
+        completed,
         total
       };
     });
+
+    return result.some(day => day.total > 0) ? result : Array(7).fill(0).map((_, i) => ({
+      day: format(new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000), 'EEE'),
+      completed: 0,
+      total: 0
+    }));
   };
 
   if (loading) {
@@ -229,18 +260,26 @@ export default function DashboardAnalytics() {
             <div className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></div>
             Monthly Tasks
           </h3>
-          <div className="h-48 sm:h-56 lg:h-64 chart-mobile sm:chart-tablet lg:chart-desktop">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyTasks}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} />
-                <YAxis axisLine={false} tickLine={false} />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="completed" fill="#10B981" name="Completed" />
-                <Bar dataKey="pending" fill="#F59E0B" name="Pending" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {tasks.length > 0 ? (
+            <div className="h-48 sm:h-56 lg:h-64 chart-mobile sm:chart-tablet lg:chart-desktop">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyTasks}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} />
+                  <YAxis axisLine={false} tickLine={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar dataKey="completed" fill="#10B981" name="Completed" />
+                  <Bar dataKey="pending" fill="#F59E0B" name="Pending" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <EmptyState 
+              icon="📊" 
+              title="No tasks yet"
+              message="Create your first task to see monthly statistics"
+            />
+          )}
         </div>
 
         {/* Time Spent by Month */}
@@ -376,18 +415,26 @@ export default function DashboardAnalytics() {
           <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
           This Week's Progress
         </h3>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={weeklyProgress}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="day" axisLine={false} tickLine={false} />
-              <YAxis axisLine={false} tickLine={false} />
-              <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="completed" fill="#10B981" name="Completed Tasks" />
-              <Bar dataKey="total" fill="#E5E7EB" name="Total Tasks" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        {tasks.length > 0 ? (
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={weeklyProgress}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="day" axisLine={false} tickLine={false} />
+                <YAxis axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="completed" fill="#10B981" name="Completed Tasks" />
+                <Bar dataKey="total" fill="#E5E7EB" name="Total Tasks" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <EmptyState 
+            icon="📅" 
+            title="No weekly data"
+            message="Complete some tasks to see your weekly progress"
+          />
+        )}
       </div>
     </div>
   );

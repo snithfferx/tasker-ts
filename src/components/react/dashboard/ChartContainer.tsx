@@ -3,7 +3,7 @@ import { Skeleton } from '@Components/ui/skeleton';
 
 interface ChartContainerProps {
   title: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   loading?: boolean;
   className?: string;
   action?: React.ReactNode;
