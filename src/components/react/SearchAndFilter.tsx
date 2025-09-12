@@ -2,23 +2,8 @@ import { useState, useEffect } from 'react';
 import { onTasksSnapshot, onCategoriesSnapshot } from '@Services/firestore';
 import { getCurrentUserId } from '@Services/auth';
 import { format } from 'date-fns';
-
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  project: string;
-  priority: 'low' | 'medium' | 'high';
-  completed: boolean;
-  timeSpent: number;
-  createdAt: string;
-  dueDate?: string;
-}
-
-interface Category {
-  id: string;
-  name: string;
-}
+import type { Task } from '@Types/task';
+import type { Category } from '@Types/category';
 
 interface FilterOptions {
   searchQuery: string;
@@ -30,13 +15,15 @@ interface FilterOptions {
   dateTo: string;
 }
 
+type TaskWithId = Task & { id: string };
+
 export default function SearchAndFilter() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<TaskWithId[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
+  const [filteredTasks, setFilteredTasks] = useState<TaskWithId[]>([]);
   const [loading, setLoading] = useState(true);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-  
+
   const [filters, setFilters] = useState<FilterOptions>({
     searchQuery: '',
     selectedCategory: '',
@@ -117,9 +104,9 @@ export default function SearchAndFilter() {
     // Filter by status
     if (filters.status) {
       if (filters.status === 'completed') {
-        filtered = filtered.filter(task => task.completed);
+        filtered = filtered.filter(task => task.completed === true);
       } else if (filters.status === 'pending') {
-        filtered = filtered.filter(task => !task.completed);
+        filtered = filtered.filter(task => task.completed !== true);
       }
     }
 
@@ -157,16 +144,16 @@ export default function SearchAndFilter() {
 
   const generateReport = async () => {
     setIsGeneratingReport(true);
-    
+
     try {
       // Calculate report data
       const reportData = {
         totalTasks: filteredTasks.length,
-        completedTasks: filteredTasks.filter(task => task.completed).length,
-        pendingTasks: filteredTasks.filter(task => !task.completed).length,
+        completedTasks: filteredTasks.filter(task => task.completed === true).length,
+        pendingTasks: filteredTasks.filter(task => task.completed !== true).length,
         totalTimeSpent: filteredTasks.reduce((sum, task) => sum + task.timeSpent, 0),
-        averageTimePerTask: filteredTasks.length > 0 
-          ? filteredTasks.reduce((sum, task) => sum + task.timeSpent, 0) / filteredTasks.length 
+        averageTimePerTask: filteredTasks.length > 0
+          ? filteredTasks.reduce((sum, task) => sum + task.timeSpent, 0) / filteredTasks.length
           : 0,
         priorityBreakdown: {
           high: filteredTasks.filter(task => task.priority === 'high').length,
@@ -179,7 +166,7 @@ export default function SearchAndFilter() {
 
       // Generate report content
       const reportContent = generateReportContent(reportData);
-      
+
       // Create and download the report
       const blob = new Blob([reportContent], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
@@ -190,7 +177,7 @@ export default function SearchAndFilter() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      
+
     } catch (error) {
       console.error('Error generating report:', error);
       alert('Error generating report. Please try again.');
@@ -210,13 +197,13 @@ export default function SearchAndFilter() {
 
   const generateReportContent = (data: any) => {
     const { totalTasks, completedTasks, pendingTasks, totalTimeSpent, averageTimePerTask, priorityBreakdown, projectBreakdown, filterCriteria } = data;
-    
+
     const totalHours = Math.round((totalTimeSpent / 3600) * 100) / 100;
     const avgHours = Math.round((averageTimePerTask / 3600) * 100) / 100;
-    
+
     let content = `TASKER - TASK REPORT\n`;
     content += `Generated: ${format(new Date(), 'PPpp')}\n\n`;
-    
+
     // Filter criteria
     content += `FILTER CRITERIA:\n`;
     content += `Search Query: ${filterCriteria.searchQuery || 'None'}\n`;
@@ -226,7 +213,7 @@ export default function SearchAndFilter() {
     content += `Status: ${filterCriteria.status || 'All'}\n`;
     content += `Date From: ${filterCriteria.dateFrom || 'All time'}\n`;
     content += `Date To: ${filterCriteria.dateTo || 'All time'}\n\n`;
-    
+
     // Summary statistics
     content += `SUMMARY:\n`;
     content += `Total Tasks: ${totalTasks}\n`;
@@ -235,33 +222,33 @@ export default function SearchAndFilter() {
     content += `Completion Rate: ${totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0}%\n`;
     content += `Total Time Spent: ${totalHours} hours\n`;
     content += `Average Time per Task: ${avgHours} hours\n\n`;
-    
+
     // Priority breakdown
     content += `PRIORITY BREAKDOWN:\n`;
     content += `High Priority: ${priorityBreakdown.high}\n`;
     content += `Medium Priority: ${priorityBreakdown.medium}\n`;
     content += `Low Priority: ${priorityBreakdown.low}\n\n`;
-    
+
     // Project breakdown
     content += `PROJECT BREAKDOWN:\n`;
     Object.entries(projectBreakdown).forEach(([project, count]) => {
       content += `${project}: ${count}\n`;
     });
     content += `\n`;
-    
+
     // Task details
     content += `TASK DETAILS:\n`;
     content += `${'Title'.padEnd(30)} ${'Project'.padEnd(15)} ${'Priority'.padEnd(10)} ${'Status'.padEnd(10)} ${'Time (hrs)'.padEnd(12)}\n`;
     content += `${'-'.repeat(80)}\n`;
-    
+
     filteredTasks.forEach(task => {
       const hours = Math.round((task.timeSpent / 3600) * 100) / 100;
       const title = task.title.length > 28 ? task.title.substring(0, 28) + '..' : task.title;
       const project = (task.project || 'None').length > 13 ? (task.project || 'None').substring(0, 13) + '..' : (task.project || 'None');
-      
-      content += `${title.padEnd(30)} ${project.padEnd(15)} ${task.priority.padEnd(10)} ${(task.completed ? 'Done' : 'Pending').padEnd(10)} ${hours.toString().padEnd(12)}\n`;
+
+      content += `${title.padEnd(30)} ${project.padEnd(15)} ${task.priority.padEnd(10)} ${(task.completed === true ? 'Done' : 'Pending').padEnd(10)} ${hours.toString().padEnd(12)}\n`;
     });
-    
+
     return content;
   };
 
@@ -303,7 +290,7 @@ export default function SearchAndFilter() {
             id="category"
             value={filters.selectedCategory}
             onChange={(e) => handleFilterChange('selectedCategory', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-400"
           >
             <option value="">All Categories</option>
             {uniqueProjects.map(project => (
@@ -321,7 +308,7 @@ export default function SearchAndFilter() {
             id="priority"
             value={filters.priority}
             onChange={(e) => handleFilterChange('priority', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-400"
           >
             <option value="">All Priorities</option>
             <option value="high">High</option>
@@ -341,7 +328,7 @@ export default function SearchAndFilter() {
             id="status"
             value={filters.status}
             onChange={(e) => handleFilterChange('status', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-400"
           >
             <option value="">All Status</option>
             <option value="completed">Completed</option>
@@ -359,7 +346,7 @@ export default function SearchAndFilter() {
             id="dateFrom"
             value={filters.dateFrom}
             onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-400"
           />
         </div>
 
@@ -373,7 +360,7 @@ export default function SearchAndFilter() {
             id="dateTo"
             value={filters.dateTo}
             onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-400"
           />
         </div>
       </div>
@@ -382,11 +369,11 @@ export default function SearchAndFilter() {
       <div className="flex flex-col sm:flex-row flex-wrap gap-3 touch-friendly">
         <button
           onClick={clearFilters}
-          className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+          className="px-4 py-2 bg-orange-200 text-gray-800 rounded-md hover:bg-orange-300 transition-colors dark:bg-orange-800 dark:text-white dark:hover:bg-orange-700"
         >
           Clear Filters
         </button>
-        
+
         <button
           onClick={generateReport}
           disabled={isGeneratingReport}
@@ -409,18 +396,18 @@ export default function SearchAndFilter() {
       </div>
 
       {/* Results Summary */}
-      <div className="bg-gray-50 p-4 rounded-lg">
+      <div className="bg-gray-50 p-4 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
         <div className="flex flex-wrap items-center justify-between">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-gray-300">
             Showing <span className="font-medium">{filteredTasks.length}</span> of <span className="font-medium">{tasks.length}</span> tasks
           </div>
-          <div className="text-sm text-gray-600">
-            {filteredTasks.filter(task => task.completed).length} completed, {filteredTasks.filter(task => !task.completed).length} pending
+          <div className="text-sm text-gray-600 dark:text-gray-300">
+            {filteredTasks.filter(task => task.completed === true).length} completed, {filteredTasks.filter(task => task.completed !== true).length} pending
           </div>
         </div>
-        
+
         {filteredTasks.length > 0 && (
-          <div className="mt-2 text-sm text-gray-600">
+          <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
             Total time: {Math.round((filteredTasks.reduce((sum, task) => sum + task.timeSpent, 0) / 3600) * 100) / 100} hours
           </div>
         )}
