@@ -1,6 +1,6 @@
 ---
 import DashboardLayout from '@Layouts/DashboardLayout.astro';
-// import { DashboardAnalytics, SearchAndFilter } from '@Components/react/LazyLoader';
+import { DashboardAnalytics, SearchAndFilter } from '@Components/react/LazyLoader';
 import DAnalytics from '@Components/react/DashboardAnalytics';
 import ExportButton from '@Components/react/ExportButton.tsx';
 ---
@@ -13,7 +13,7 @@ import ExportButton from '@Components/react/ExportButton.tsx';
   <!-- Search and Filter Section -->
   <div class="bg-white shadow rounded-lg p-6 mb-6">
     <h2 class="text-lg font-medium text-gray-900 mb-4">Search & Filter</h2>
-    <!-- <SearchAndFilter client:only="react" /> -->
+    <SearchAndFilter client:only="react" />
   </div>
 
   <!-- Analytics Dashboard -->

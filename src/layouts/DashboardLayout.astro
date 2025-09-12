@@ -1,7 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import AuthGuard from '@Components/react/AuthGuard';
-import UserProfile from '@Components/react/UserProfile';
+// import UserProfile from '@Components/react/UserProfile';
 import RealTimeSync from '@Components/react/RealTimeSync';
 
 interface Props {
@@ -45,7 +45,7 @@ const isActivePage = (href: string) => {
           <!-- Theme Toggle, Real-time Sync Status & User Profile -->
           <div class="flex items-center space-x-4">
             <RealTimeSync client:load className="hidden sm:flex" />
-            <UserProfile client:load />
+            <!-- <UserProfile client:load /> -->
           </div>
         </div>
         
