@@ -1,18 +1,8 @@
 import { useState, useEffect } from 'react';
 import { onTasksSnapshot, updateTask, deleteTask as deleteTaskFromDB } from '@Services/firestore';
 import { getCurrentUserId } from '@Services/auth';
+import type { Task } from '@Types/task';
 
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  project: string;
-  priority: 'low' | 'medium' | 'high';
-  dueDate: string;
-  completed: boolean;
-  timeSpent: number; // in seconds
-}
 
 export default function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -58,13 +48,13 @@ export default function TaskList() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
       case 'low':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
   };
   
@@ -112,14 +102,14 @@ export default function TaskList() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">My Tasks</h3>
+        <h3 className="text-lg font-medium dark:text-white">My Tasks</h3>
         <div className="flex space-x-1">
           <button
             onClick={() => setFilter('all')}
             className={`px-3 py-1 text-sm rounded-md ${
               filter === 'all' 
-                ? 'bg-indigo-100 text-indigo-700' 
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300' 
+                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
             }`}
           >
             All
@@ -128,8 +118,8 @@ export default function TaskList() {
             onClick={() => setFilter('active')}
             className={`px-3 py-1 text-sm rounded-md ${
               filter === 'active' 
-                ? 'bg-indigo-100 text-indigo-700' 
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300' 
+                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
             }`}
           >
             Active
@@ -138,8 +128,8 @@ export default function TaskList() {
             onClick={() => setFilter('completed')}
             className={`px-3 py-1 text-sm rounded-md ${
               filter === 'completed' 
-                ? 'bg-indigo-100 text-indigo-700' 
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300' 
+                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
             }`}
           >
             Completed
@@ -148,7 +138,7 @@ export default function TaskList() {
       </div>
       
       {filteredTasks.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
           <svg
             className="mx-auto h-12 w-12 text-gray-400"
             fill="none"
@@ -167,26 +157,28 @@ export default function TaskList() {
           <p className="text-sm">Create a new task to get started</p>
         </div>
       ) : (
-        <ul className="divide-y divide-gray-200">
+        <ul className="divide-y divide-gray-200 dark:divide-gray-700">
           {filteredTasks.map((task) => (
             <li key={task.id} className="py-3">
               <div className="flex items-start">
-                <div className="flex items-center h-5">
-                  <input
-                    id={`task-${task.id}`}
-                    name={`task-${task.id}`}
-                    type="checkbox"
-                    checked={task.completed}
-                    onChange={() => toggleTaskCompletion(task.id, task.completed)}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                  />
-                </div>
+                {task.taskType === 'typical' && (
+                  <div className="flex items-center h-5">
+                    <input
+                      id={`task-${task.id}`}
+                      name={`task-${task.id}`}
+                      type="checkbox"
+                      checked={task.completed}
+                      onChange={() => toggleTaskCompletion(task.id, task.completed)}
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600"
+                    />
+                  </div>
+                )}
                 <div className="ml-3 flex-1">
                   <div className="flex items-center justify-between">
                     <label
                       htmlFor={`task-${task.id}`}
                       className={`text-sm font-medium ${
-                        task.completed ? 'line-through text-gray-400' : 'text-gray-700'
+                        task.completed ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-300'
                       }`}
                     >
                       {task.title}
@@ -195,12 +187,12 @@ export default function TaskList() {
                       <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getPriorityColor(task.priority)}`}>
                         {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
                         {formatDuration(task.timeSpent)}
                       </span>
                       <button
                         onClick={() => deleteTaskHandler(task.id)}
-                        className="text-gray-400 hover:text-red-500"
+                        className="text-gray-400 hover:text-red-500 dark:hover:text-red-400"
                         title="Delete task"
                       >
                         <svg
@@ -221,12 +213,12 @@ export default function TaskList() {
                     </div>
                   </div>
                   {task.description && (
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">
                       {task.description}
                     </p>
                   )}
                   {task.dueDate && (
-                    <div className="mt-1 flex items-center text-xs text-gray-500">
+                    <div className="mt-1 flex items-center text-xs text-gray-500 dark:text-gray-400">
                       <svg
                         className="flex-shrink-0 mr-1.5 h-4 w-4"
                         fill="none"

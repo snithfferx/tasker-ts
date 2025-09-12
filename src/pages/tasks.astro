@@ -7,110 +7,113 @@ import TaskList from '@Components/react/TaskList';
 
 <DashboardLayout title="Tasks">
   <div class="space-y-6">
-    <!-- Timer Section -->
-    <div class="bg-white shadow rounded-lg p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-medium text-gray-900">Time Tracker</h2>
-        <div class="text-sm text-gray-500">
-          Track time spent on your current task
-        </div>
-      </div>
-      <Timer client:load />
-    </div>
-
     <!-- Task Management Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Task Form -->
-      <div class="lg:col-span-1">
-        <div class="bg-white shadow rounded-lg p-6">
-          <h2 class="text-lg font-medium text-gray-900 mb-4">Create New Task</h2>
-          <TaskForm client:load />
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:col-span-2">
+        <!-- Timer Section -->
+        <div class="bg-white dark:bg-gray-700 dark:text-gray-100 shadow rounded-lg p-6">
+          <div class="flex items-center justify-between mb-4 dark:text-gray-100">
+            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Time Tracker</h2>
+            <div class="text-sm text-gray-500 dark:text-gray-100">
+              Track time spent on your current task
+            </div>
+          </div>
+          <Timer client:load />
+        </div>
+  
+        <!-- Task Form -->
+        <div class="lg:col-span-1">
+          <div class="bg-white dark:bg-gray-700 dark:text-gray-100 shadow rounded-lg p-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">Create New Task</h2>
+            <TaskForm client:load />
+          </div>
+        </div>
+
+        <!-- Task List -->
+        <div class="lg:col-span-2">
+          <div class="bg-white shadow rounded-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-medium text-gray-900">My Tasks</h2>
+              <div class="flex items-center space-x-2 text-sm text-gray-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>Click on tasks to edit, use checkboxes to mark complete</span>
+              </div>
+            </div>
+            <TaskList client:load />
+          </div>
         </div>
       </div>
 
-      <!-- Task List -->
-      <div class="lg:col-span-2">
-        <div class="bg-white shadow rounded-lg p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-medium text-gray-900">My Tasks</h2>
-            <div class="flex items-center space-x-2 text-sm text-gray-500">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              <span>Click on tasks to edit, use checkboxes to mark complete</span>
+      <!-- Task Statistics -->
+      <div class="grid grid-cols-1 gap-4">
+        <div class="bg-white p-4 rounded-lg shadow">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-gray-600">All Tasks</p>
+              <p class="text-lg font-semibold text-gray-900" id="total-tasks">-</p>
             </div>
           </div>
-          <TaskList client:load />
+        </div>
+  
+        <div class="bg-white p-4 rounded-lg shadow">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-gray-600">Completed</p>
+              <p class="text-lg font-semibold text-gray-900" id="completed-tasks">-</p>
+            </div>
+          </div>
+        </div>
+  
+        <div class="bg-white p-4 rounded-lg shadow">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-yellow-100 rounded-md flex items-center justify-center">
+                <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-gray-600">In Progress</p>
+              <p class="text-lg font-semibold text-gray-900" id="pending-tasks">-</p>
+            </div>
+          </div>
+        </div>
+  
+        <div class="bg-white p-4 rounded-lg shadow">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
+                <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-gray-600">Total Hours</p>
+              <p class="text-lg font-semibold text-gray-900" id="total-hours">-</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Task Statistics -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div class="bg-white p-4 rounded-lg shadow">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <div class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
-              <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-              </svg>
-            </div>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-gray-600">All Tasks</p>
-            <p class="text-lg font-semibold text-gray-900" id="total-tasks">-</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white p-4 rounded-lg shadow">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <div class="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
-              <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-            </div>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-gray-600">Completed</p>
-            <p class="text-lg font-semibold text-gray-900" id="completed-tasks">-</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white p-4 rounded-lg shadow">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <div class="w-8 h-8 bg-yellow-100 rounded-md flex items-center justify-center">
-              <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </div>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-gray-600">In Progress</p>
-            <p class="text-lg font-semibold text-gray-900" id="pending-tasks">-</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white p-4 rounded-lg shadow">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <div class="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
-              <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-              </svg>
-            </div>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-gray-600">Total Hours</p>
-            <p class="text-lg font-semibold text-gray-900" id="total-hours">-</p>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- Tips and Help -->
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">

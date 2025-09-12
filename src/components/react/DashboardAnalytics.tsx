@@ -3,29 +3,9 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { onTasksSnapshot, onCategoriesSnapshot, onTimeEntriesSnapshot } from '@Services/firestore';
 import { getCurrentUserId } from '@Services/auth';
 import { format, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
-
-interface Task {
-  id: string;
-  title: string;
-  project: string;
-  priority: 'low' | 'medium' | 'high';
-  completed: boolean;
-  timeSpent: number;
-  createdAt: string;
-}
-
-interface TimeEntry {
-  id: string;
-  taskName: string;
-  duration: number;
-  startedAt: string;
-  taskId?: string;
-}
-
-interface Category {
-  id: string;
-  name: string;
-}
+import type { Categories } from '@Types/category';
+import type { Task } from '@Types/task';
+import type { TimeEntry } from '@Types/timer';
 
 // Chart colors
 const COLORS = ['#6366F1', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#EF4444', '#6B7280'];
@@ -33,10 +13,10 @@ const COLORS = ['#6366F1', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#EF4444'
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-3 border border-gray-200 rounded shadow-lg">
-        <p className="font-medium">{label}</p>
+      <div className="p-3 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg">
+        <p className="font-medium text-gray-900 dark:text-white">{label}</p>
         {payload.map((entry: any, index: number) => (
-          <p key={index} className="text-sm" style={{ color: entry.color }}>
+          <p key={index} className="text-sm text-gray-600 dark:text-gray-300" style={{ color: entry.color }}>
             {entry.name}: {entry.value} {entry.name.includes('Time') ? 'hours' : ''}
           </p>
         ))}
@@ -49,7 +29,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export default function DashboardAnalytics() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Categories>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month');
 
@@ -76,7 +56,12 @@ export default function DashboardAnalytics() {
       checkComplete();
     });
 
-    const unsubCategories = onCategoriesSnapshot(uid, (items) => {
+	  const unsubCategories = onCategoriesSnapshot(uid, (items) => {
+		// check if categories exist, if not, return error
+		if (!items) {
+			console.error('No categories found for user:', uid);
+			return;
+		}
       setCategories(items);
       checkComplete();
     });
@@ -91,11 +76,8 @@ export default function DashboardAnalytics() {
   // Analytics calculations
   const getTaskStats = () => {
     const total = tasks.length;
-    const completed = tasks.filter(task => task.completed).length;
-    const pending = total - completed;
-    const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-    return { total, completed, pending, completionRate };
+    return { total };
   };
 
   const getMonthlyTasks = () => {
@@ -110,14 +92,11 @@ export default function DashboardAnalytics() {
         return taskDate >= monthStart && taskDate <= monthEnd;
       });
 
-      const completed = monthTasks.filter(task => task.completed).length;
       const total = monthTasks.length;
 
       months.push({
         month: format(date, 'MMM yyyy'),
-        completed,
-        total,
-        pending: total - completed
+        total
       });
     }
     return months;
@@ -195,14 +174,11 @@ export default function DashboardAnalytics() {
         return format(taskDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd');
       });
 
-      const completed = dayTasks.filter(task => task.completed).length;
       const total = dayTasks.length;
 
       return {
         day: format(day, 'EEE'),
-        completed,
-        total,
-        completionRate: total > 0 ? Math.round((completed / total) * 100) : 0
+        total
       };
     });
   };
@@ -210,7 +186,8 @@ export default function DashboardAnalytics() {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+        <div className="loading-spinner h-8 w-8"></div>
+        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading analytics...</span>
       </div>
     );
   }
@@ -226,77 +203,32 @@ export default function DashboardAnalytics() {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
+        <div className="card group">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-indigo-100 rounded-md flex items-center justify-center">
-                <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-200">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Tasks</p>
-              <p className="text-2xl font-semibold text-gray-900">{taskStats.total}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
-                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Completed</p>
-              <p className="text-2xl font-semibold text-gray-900">{taskStats.completed}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-yellow-100 rounded-md flex items-center justify-center">
-                <svg className="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Pending</p>
-              <p className="text-2xl font-semibold text-gray-900">{taskStats.pending}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
-                <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Completion Rate</p>
-              <p className="text-2xl font-semibold text-gray-900">{taskStats.completionRate}%</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Tasks</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{taskStats.total}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 dashboard-grid">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 dashboard-grid animate-slide-up">
         {/* Monthly Tasks Chart */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Monthly Tasks</h3>
+        <div className="chart-container">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+            <div className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></div>
+            Monthly Tasks
+          </h3>
           <div className="h-48 sm:h-56 lg:h-64 chart-mobile sm:chart-tablet lg:chart-desktop">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyTasks}>
@@ -312,8 +244,11 @@ export default function DashboardAnalytics() {
         </div>
 
         {/* Time Spent by Month */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Time Spent by Month</h3>
+        <div className="chart-container">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+            <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+            Time Spent by Month
+          </h3>
           <div className="h-48 sm:h-56 lg:h-64 chart-mobile sm:chart-tablet lg:chart-desktop">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={timeSpentByMonth}>
@@ -328,8 +263,11 @@ export default function DashboardAnalytics() {
         </div>
 
         {/* Priority Distribution */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Priority Distribution</h3>
+        <div className="chart-container">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+            <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+            Priority Distribution
+          </h3>
           <div className="h-48 sm:h-56 lg:h-64 chart-mobile sm:chart-tablet lg:chart-desktop">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -352,17 +290,23 @@ export default function DashboardAnalytics() {
           </div>
           <div className="mt-4 space-y-2">
             {priorityDistribution.map((entry, index) => (
-              <div key={index} className="flex items-center">
-                <div className={`w-3 h-3 rounded-full mr-2`} style={{ backgroundColor: entry.color }}></div>
-                <span className="text-sm text-gray-600">{entry.name}: {entry.value}</span>
+              <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700 transition-colors">
+                <div className="flex items-center">
+                  <div className={`w-3 h-3 rounded-full mr-3`} style={{ backgroundColor: entry.color }}></div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{entry.name}</span>
+                </div>
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">{entry.value}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Project Distribution */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Project Distribution</h3>
+        <div className="chart-container">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+            <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+            Project Distribution
+          </h3>
           <div className="h-48 sm:h-56 lg:h-64 chart-mobile sm:chart-tablet lg:chart-desktop">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -383,9 +327,12 @@ export default function DashboardAnalytics() {
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2">
             {projectDistribution.map((entry, index) => (
-              <div key={index} className="flex items-center">
-                <div className={`w-3 h-3 rounded-full mr-2`} style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                <span className="text-sm text-gray-600 truncate">{entry.name}: {entry.value}</span>
+              <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700 transition-colors">
+                <div className="flex items-center min-w-0">
+                  <div className={`w-3 h-3 rounded-full mr-3 flex-shrink-0`} style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{entry.name}</span>
+                </div>
+                <span className="text-sm font-semibold text-gray-900 dark:text-white ml-2">{entry.value}</span>
               </div>
             ))}
           </div>
@@ -393,8 +340,11 @@ export default function DashboardAnalytics() {
       </div>
 
       {/* Most Time Spent Tasks */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Most Time Consuming Tasks</h3>
+      <div className="chart-container animate-scale-in">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+          <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+          Most Time Consuming Tasks
+        </h3>
         {mostTimeSpentTasks.length > 0 ? (
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -408,13 +358,24 @@ export default function DashboardAnalytics() {
             </ResponsiveContainer>
           </div>
         ) : (
-          <p className="text-gray-500 text-center py-8">No time tracking data available yet.</p>
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p className="text-gray-500 dark:text-gray-400">No time tracking data available yet.</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Start tracking time on your tasks to see data here.</p>
+          </div>
         )}
       </div>
 
       {/* Weekly Progress */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">This Week's Progress</h3>
+      <div className="chart-container animate-slide-up">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+          This Week's Progress
+        </h3>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={weeklyProgress}>

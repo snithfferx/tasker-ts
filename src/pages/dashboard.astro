@@ -1,17 +1,24 @@
 ---
 import DashboardLayout from '@Layouts/DashboardLayout.astro';
-import { DashboardAnalytics, SearchAndFilter } from '@Components/react/LazyLoader';
+// import { DashboardAnalytics, SearchAndFilter } from '@Components/react/LazyLoader';
+import DAnalytics from '@Components/react/dashboard/DashboardAnalytics';
+import ExportButton from '@Components/react/ExportButton.tsx';
 ---
 
 <DashboardLayout title="Dashboard">
+  <div class="mb-6 flex justify-end">
+    <ExportButton client:only="react" />
+  </div>
+
   <!-- Search and Filter Section -->
   <div class="bg-white shadow rounded-lg p-6 mb-6">
     <h2 class="text-lg font-medium text-gray-900 mb-4">Search & Filter</h2>
-    <SearchAndFilter client:load />
+    <!-- <SearchAndFilter client:only="react" /> -->
   </div>
 
   <!-- Analytics Dashboard -->
   <div class="space-y-6">
-    <DashboardAnalytics client:load />
+    <!-- <DashboardAnalytics client:only="react" /> -->
+	<DAnalytics client:only="react" />
   </div>
 </DashboardLayout>

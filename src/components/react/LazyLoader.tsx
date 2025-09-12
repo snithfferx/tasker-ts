@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 
 // Lazy load heavy components
 export const DashboardAnalyticsLazy = lazy(() => 
-  import('./DashboardAnalytics').then(module => ({ default: module.default }))
+  import('./dashboard/DashboardAnalytics').then(module => ({ default: module.default }))
 );
 
 export const SearchAndFilterLazy = lazy(() => 
@@ -34,11 +34,11 @@ function LoadingFallback({
 // Chart-specific loading fallback
 function ChartLoadingFallback() {
   return (
-    <div className="h-48 sm:h-56 lg:h-64 bg-gray-50 rounded-lg animate-pulse flex items-center justify-center">
+    <div className="h-48 sm:h-56 lg:h-64 bg-gray-50 dark:bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
       <div className="text-center">
-        <div className="w-16 h-16 bg-gray-200 rounded-lg mx-auto mb-3"></div>
-        <div className="h-4 bg-gray-200 rounded w-24 mx-auto mb-2"></div>
-        <div className="h-3 bg-gray-200 rounded w-16 mx-auto"></div>
+        <div className="w-16 h-16 bg-gray-200 dark:bg-gray-600 rounded-lg mx-auto mb-3"></div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-24 mx-auto mb-2"></div>
+        <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded w-16 mx-auto"></div>
       </div>
     </div>
   );

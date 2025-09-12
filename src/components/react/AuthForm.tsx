@@ -92,8 +92,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
     <>
       <form className="mt-8 space-y-6" method="POST" action={actionUrl} onSubmit={handleSubmit}>
         {error && (
-          <div className="rounded-md bg-red-50 p-4 mb-4">
-            <div className="text-sm text-red-700">{error}</div>
+          <div className="rounded-md bg-red-50 p-4 mb-4 dark:bg-red-900">
+            <div className="text-sm text-red-700 dark:text-red-300">{error}</div>
           </div>
         )}
         
@@ -144,7 +144,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
         <div className="flex items-center justify-between text-sm">
           {mode === 'login' && (
-            <a href="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <a href="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
               Forgot your password?
             </a>
           )}
@@ -162,9 +162,9 @@ export default function AuthForm({ mode }: AuthFormProps) {
       </form>
       <div className="mt-6 text-center text-sm text-gray-700 dark:text-gray-300">
         {mode === 'login' ? (
-          <p>Don't have an account? <a href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">Register</a></p>
+          <p>Don't have an account? <a href="/register" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">Register</a></p>
         ) : (
-          <p>Already have an account? <a href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">Sign in</a></p>
+          <p>Already have an account? <a href="/login" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">Sign in</a></p>
         )}
       </div>
     </>

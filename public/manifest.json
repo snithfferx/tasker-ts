@@ -1,0 +1,16 @@
+{
+  "name": "Tasker - Time Tracking App",
+  "short_name": "Tasker",
+  "description": "A modern time tracking application built with Astro and React.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -31,13 +31,13 @@ export default function Categories() {
     await deleteCategory(uid, id);
   };
 
-  if (loading) return <div className="text-sm text-gray-500">Loading...</div>;
+  if (loading) return <div className="text-sm text-gray-500 dark:text-gray-400">Loading...</div>;
 
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
         <input
-          className="flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:focus:ring-indigo-400"
           placeholder="New category name"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -51,15 +51,15 @@ export default function Categories() {
       </div>
 
       {categories.length === 0 ? (
-        <p className="text-sm text-gray-500">No categories yet.</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">No categories yet.</p>
       ) : (
-        <ul className="divide-y divide-gray-200">
+        <ul className="divide-y divide-gray-200 dark:divide-gray-700">
           {categories.map((c) => (
-            <li key={c.id} className="py-2 flex items-center justify-between">
+            <li key={c.id} className="py-2 flex items-center justify-between dark:text-gray-200">
               <span>{c.name}</span>
               <button
                 onClick={() => remove(c.id)}
-                className="text-sm text-red-600 hover:text-red-700"
+                className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
               >
                 Delete
               </button>

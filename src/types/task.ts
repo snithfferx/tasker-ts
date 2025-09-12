@@ -5,9 +5,10 @@ export interface Task {
   description?: string;
   project: string;
   priority: 'low' | 'medium' | 'high';
+  taskType: 'recurrent' | 'typical';
   dueDate?: string;
-  completed: boolean;
   timeSpent: number; // in seconds
+  completed?: boolean;
   createdAt: string;
   updatedAt: string;
 }

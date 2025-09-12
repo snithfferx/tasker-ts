@@ -8,6 +8,7 @@ interface TaskFormData {
   description: string;
   project: string;
   priority: 'low' | 'medium' | 'high';
+  taskType: 'recurrent' | 'typical';
   dueDate: string;
 }
 
@@ -15,7 +16,7 @@ export default function TaskForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  
+
   const {
     register,
     handleSubmit,
@@ -27,7 +28,7 @@ export default function TaskForm() {
     setIsSubmitting(true);
     setSuccess('');
     setErrorMsg('');
-    
+
     try {
       // Ensure we have an initialized auth state and a real UID
       await initAuth();
@@ -41,16 +42,17 @@ export default function TaskForm() {
         description: data.description,
         project: data.project,
         priority: data.priority ?? 'medium',
+        taskType: data.taskType,
         dueDate: data.dueDate,
         timeSpent: 0,
       });
       console.log('Task created:', res);
       // console.log('Saving task:', data);
       // await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       setSuccess('Task created successfully!');
       reset();
-      
+
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
@@ -111,7 +113,7 @@ export default function TaskForm() {
           </div>
         </div>
       )}
-      
+
       <div>
         <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-100">
           Task Title *
@@ -119,14 +121,14 @@ export default function TaskForm() {
         <input
           type="text"
           id="title"
-          className="mt-1 px-4 py-2.5 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="mt-1 px-4 py-2.5 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white"
           {...register('title', { required: 'Title is required' })}
         />
         {errors.title && (
           <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
         )}
       </div>
-      
+
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-100">
           Description
@@ -134,11 +136,11 @@ export default function TaskForm() {
         <textarea
           id="description"
           rows={3}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white"
           {...register('description')}
         />
       </div>
-      
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="project" className="block text-sm font-medium text-gray-700 dark:text-gray-100">
@@ -146,7 +148,7 @@ export default function TaskForm() {
           </label>
           <select
             id="project"
-            className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 py-2 pl-3 pr-10 text-base dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
             defaultValue=""
             {...register('project')}
           >
@@ -157,14 +159,14 @@ export default function TaskForm() {
             <option value="other">Other</option>
           </select>
         </div>
-        
+
         <div>
           <label htmlFor="priority" className="block text-sm font-medium text-gray-700 dark:text-gray-100">
             Priority
           </label>
           <select
             id="priority"
-            className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 py-2 pl-3 pr-10 text-base dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
             defaultValue="medium"
             {...register('priority')}
           >
@@ -174,7 +176,32 @@ export default function TaskForm() {
           </select>
         </div>
       </div>
-      
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-100">Task Type</label>
+        <div className="mt-2 flex items-center space-x-4">
+          <label className="inline-flex items-center">
+            <input
+              type="radio"
+              className="form-radio text-indigo-600"
+              value="typical"
+              {...register('taskType', { required: true })}
+              defaultChecked
+            />
+            <span className="ml-2 dark:text-gray-300">Typical</span>
+          </label>
+          <label className="inline-flex items-center">
+            <input
+              type="radio"
+              className="form-radio text-indigo-600"
+              value="recurrent"
+              {...register('taskType', { required: true })}
+            />
+            <span className="ml-2 dark:text-gray-300">Recurrent</span>
+          </label>
+        </div>
+      </div>
+
       <div>
         <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 dark:text-gray-100">
           Due Date
@@ -187,12 +214,12 @@ export default function TaskForm() {
           {...register('dueDate')}
         />
       </div>
-      
+
       <div className="flex justify-end">
         <button
           type="button"
           onClick={() => reset()}
-          className="mr-2 inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          className="mr-2 inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
         >
           Reset
         </button>

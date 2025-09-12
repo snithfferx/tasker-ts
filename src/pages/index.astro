@@ -12,7 +12,7 @@ import { APP_NAME, APP_DESCRIPTION } from '../configs/constants';
         {APP_DESCRIPTION || 'A powerful time tracking solution for professionals and teams to boost productivity and manage tasks efficiently.'}
       </p>
       <div class="flex flex-col sm:flex-row justify-center gap-4">
-        <a href="/login" class="bg-white text-indigo-600 px-8 py-3 rounded-lg font-medium text-lg hover:bg-gray-100 transition-colors">
+        <a href="/login" class="bg-white text-indigo-600 px-8 py-3 rounded-lg font-medium text-lg hover:bg-gray-100 transition-colors dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700">
           Get Started
         </a>
         <a href="#features" class="bg-indigo-700 text-white px-8 py-3 rounded-lg font-medium text-lg hover:bg-indigo-800 transition-colors">
@@ -23,53 +23,53 @@ import { APP_NAME, APP_DESCRIPTION } from '../configs/constants';
   </section>
 
   <!-- Features Section -->
-  <section id="features" class="py-16 bg-white">
+  <section id="features" class="py-16 bg-white dark:bg-gray-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-12">
-        <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+        <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl dark:text-white">
           Everything You Need to Stay Productive
         </h2>
-        <p class="mt-4 text-xl text-gray-600">
+        <p class="mt-4 text-xl text-gray-600 dark:text-gray-300">
           Powerful features designed to help you track time and manage tasks efficiently
         </p>
       </div>
 
       <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         <!-- Feature 1 -->
-        <div class="bg-gray-50 p-6 rounded-xl hover:shadow-lg transition-shadow">
-          <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl hover:shadow-lg dark:hover:shadow-indigo-500/50 transition-shadow">
+          <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 class="text-xl font-semibold mb-2">Time Tracking</h3>
-          <p class="text-gray-600">
+          <h3 class="text-xl font-semibold mb-2 dark:text-white">Time Tracking</h3>
+          <p class="text-gray-600 dark:text-gray-400">
             Track time spent on tasks with our intuitive timer. Categorize and analyze your productivity patterns.
           </p>
         </div>
 
         <!-- Feature 2 -->
-        <div class="bg-gray-50 p-6 rounded-xl hover:shadow-lg transition-shadow">
-          <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl hover:shadow-lg dark:hover:shadow-indigo-500/50 transition-shadow">
+          <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
-          <h3 class="text-xl font-semibold mb-2">Task Management</h3>
-          <p class="text-gray-600">
+          <h3 class="text-xl font-semibold mb-2 dark:text-white">Task Management</h3>
+          <p class="text-gray-600 dark:text-gray-400">
             Organize your work with tasks, projects, and priorities. Never miss a deadline again.
           </p>
         </div>
 
         <!-- Feature 3 -->
-        <div class="bg-gray-50 p-6 rounded-xl hover:shadow-lg transition-shadow">
-          <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl hover:shadow-lg dark:hover:shadow-indigo-500/50 transition-shadow">
+          <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           </div>
-          <h3 class="text-xl font-semibold mb-2">Analytics</h3>
-          <p class="text-gray-600">
+          <h3 class="text-xl font-semibold mb-2 dark:text-white">Analytics</h3>
+          <p class="text-gray-600 dark:text-gray-400">
             Get insights into your productivity with detailed reports and visual analytics.
           </p>
         </div>
@@ -78,10 +78,10 @@ import { APP_NAME, APP_DESCRIPTION } from '../configs/constants';
   </section>
 
   <!-- CTA Section -->
-  <section class="bg-gray-50 py-16">
+  <section class="bg-gray-50 dark:bg-gray-800 py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <h2 class="text-3xl font-extrabold text-gray-900 mb-6">Ready to boost your productivity?</h2>
-      <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+      <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">Ready to boost your productivity?</h2>
+      <p class="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
         Join thousands of professionals who use {APP_NAME} to track their time and get more done.
       </p>
       <a href="/register" class="bg-indigo-600 text-white px-8 py-3 rounded-lg font-medium text-lg hover:bg-indigo-700 transition-colors inline-block">

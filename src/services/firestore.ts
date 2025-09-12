@@ -1,5 +1,8 @@
 import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, setDoc, updateDoc } from 'firebase/firestore';
-import { db, type Task, type TimeEntry } from './firebase';
+import { db, } from './firebase';
+import type { Task } from '@Types/task'
+import type { TimeEntry } from '@Types/timer';
+import type { Category } from '@Types/category';
 
 // Collection path helpers (scoped per user)
 const tasksCol = (uid: string) => collection(db, 'users', uid, 'tasks');
@@ -19,12 +22,13 @@ export async function createTask(uid: string, data: Omit<Task, 'id' | 'createdAt
     description: data.description || '',
     project: data.project || '',
     priority: data.priority || 'medium',
+    taskType: data.taskType || 'typical',
     dueDate: data.dueDate,
-    completed: data.completed ?? false,
     timeSpent: data.timeSpent ?? 0,
     createdAt: now,
     updatedAt: now,
   };
+  console.log('Saving task:', payload)
   const ref = await addDoc(tasksCol(uid), payload);
   return { id: ref.id, ...payload };
 }
@@ -71,7 +75,6 @@ export function onTimeEntriesSnapshot(
 }
 
 // Categories
-export interface Category { id?: string; name: string; createdAt: string }
 
 export async function createCategory(uid: string, name: string) {
   const payload: Category = { name, createdAt: new Date().toISOString() };
